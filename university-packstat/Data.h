@@ -7,7 +7,7 @@
 
 class Data {
 private:
-	std::map<std::string, int> clients;
+	std::map<std::string, int> clients;		/* Contains IP address and the number of occurrences */
 public:
 	Data();
 	~Data();
