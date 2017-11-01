@@ -18,8 +18,10 @@ char *PcapAdapter::getNextIP() {
 	const u_char *packet;
 	const struct sniff_ethernet *ethernet;
 	const struct sniff_ip *ip;
-	packet = pcap_next(this->handle, &this->header);
-	ethernet = (struct sniff_ethernet *)(packet);
-	ip = (struct sniff_ip *)(packet + SIZE_ETHERNET);
-	return inet_ntoa(ip->ip_src);
+	if ((packet = pcap_next(this->handle, &this->header)) != NULL) {
+		ethernet = (struct sniff_ethernet *)(packet);
+		ip = (struct sniff_ip *)(packet + SIZE_ETHERNET);
+		return inet_ntoa(ip->ip_src);
+	}
+	return NULL;
 }
