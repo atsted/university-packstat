@@ -4,33 +4,36 @@ Data::Data() {}
 
 Data::~Data() {}
 
-void Data::add(char *ip) {
-	std::string _ip{ ip };
-	std::map<std::string, int>::iterator it = this->clients.find(_ip);
+void Data::add(u_long ip) {
+	std::map<u_long, int>::iterator it = this->clients.find(ip);
 	if (it == this->clients.end()) {
-		this->clients.emplace(_ip, 1);
+		this->clients.emplace(ip, 1);
 		return;
 	}
 	it->second++;
 }
 
-int Data::get(char *ip) {
-	std::string _ip{ ip };
-	std::map<std::string, int>::const_iterator it = this->clients.find(_ip);
+int Data::get(u_long ip) {
+	std::map<u_long, int>::const_iterator it = this->clients.find(ip);
 	if (it == this->clients.end()) {
 		return -1;
 	}
 	return it->second;
 }
 
-void Data::getAll(std::vector<std::pair<std::string, int>> &v) {
-	v.clear();
-	for (std::map<std::string, int>::const_iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
-		v.emplace_back(it->first, it->second);
+void Data::getAll(std::vector<int> &v) {
+	int i = 0;
+	v.resize(this->clients.size());
+	for (std::map<u_long, int>::const_iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
+		v[i++] = it->second;
 	}
-	std::sort(v.begin(), v.end(), [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) {
-		return (b.second < a.second);
+	std::sort(v.begin(), v.end(), [](const int &a, const int &b) {
+		return (b < a);
 	});
+}
+
+void Data::clear() {
+	this->clients.clear();
 }
 
 int Data::load() {

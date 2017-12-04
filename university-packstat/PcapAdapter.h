@@ -21,6 +21,6 @@ public:
 	PcapAdapter();
 	~PcapAdapter();
 	void open();
-	char *getNextIP();
+	u_long getNextIP();
 };
 

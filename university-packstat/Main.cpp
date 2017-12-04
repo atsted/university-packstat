@@ -6,7 +6,7 @@
 #include <glut.h>
 
 
-std::vector<std::pair<std::string, int>> v;
+std::vector<int> v;
 
 Data d;
 PcapAdapter pa;
@@ -26,8 +26,8 @@ void display() {
 	glColor3f(1.0, 1.0, 1.0);
 	glVertex2i(30, 30);
 	for (int i = 0; i < v.size(); ++i) {
-		glVertex2i(30 + 5 * i, 30 + v[i].second);
-		glVertex2i(30 + 5 * (i + 1), 30 + v[i].second);
+		glVertex2i(30 + 5 * i, 30 + v[i]);
+		glVertex2i(30 + 5 * (i + 1), 30 + v[i]);
 	}
 	glVertex2i(30 + 5 * v.size(), 30);
 	glEnd();
@@ -35,7 +35,7 @@ void display() {
 }
 
 DWORD WINAPI readPackages(LPVOID lpParam) {
-	char *ip;
+	u_long ip;
 	while ((ip = pa.getNextIP()) != NULL) {
 		d.add(ip);
 		Sleep(10);
@@ -46,7 +46,8 @@ DWORD WINAPI readPackages(LPVOID lpParam) {
 void timf(int value) {
 	d.getAll(v);
 	glutPostRedisplay();
-	glutTimerFunc(200, timf, 0);
+	glutTimerFunc(10000, timf, 0);
+	d.clear();
 }
 
 int main(int argc, char * argv[]) {
@@ -58,7 +59,7 @@ int main(int argc, char * argv[]) {
 	glutCreateWindow("PackStat - University Project");
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(display);
-	glutTimerFunc(200, timf, 0);
+	glutTimerFunc(10000, timf, 0);
 	glutMainLoop();
 	return 0;
 }

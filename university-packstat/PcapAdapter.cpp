@@ -14,14 +14,14 @@ void PcapAdapter::open() {
 	}
 }
 
-char *PcapAdapter::getNextIP() {
+u_long PcapAdapter::getNextIP() {
 	const u_char *packet;
 	const struct sniff_ethernet *ethernet;
 	const struct sniff_ip *ip;
 	if ((packet = pcap_next(this->handle, &this->header)) != NULL) {
 		ethernet = (struct sniff_ethernet *)(packet);
 		ip = (struct sniff_ip *)(packet + SIZE_ETHERNET);
-		return inet_ntoa(ip->ip_src);
+		return ip->ip_src.S_un.S_addr;
 	}
 	return NULL;
 }
