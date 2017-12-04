@@ -7,7 +7,7 @@ PcapAdapter::~PcapAdapter() {
 }
 
 void PcapAdapter::open() {
-	this->handle = pcap_open_offline("dump.pcap", this->errbuf);
+	this->handle = pcap_open_offline(DUMP_FILE, this->errbuf);
 	if (this->handle == NULL) {
 		std::cout << this->errbuf << std::endl;
 		exit(1);

@@ -21,3 +21,6 @@ Release
 *.vbproj.user
 ipch
 *sdf
+
+# TCP Dump Files
+university-packstat/Captured

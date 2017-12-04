@@ -29,6 +29,7 @@ void display() {
 		glVertex2i(30 + 5 * i, 30 + v[i].second);
 		glVertex2i(30 + 5 * (i + 1), 30 + v[i].second);
 	}
+	glVertex2i(30 + 5 * v.size(), 30);
 	glEnd();
 	glutSwapBuffers();
 }
@@ -54,7 +55,7 @@ int main(int argc, char * argv[]) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(1100, 600);
-	glutCreateWindow("PaskStat - University Project");
+	glutCreateWindow("PackStat - University Project");
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(display);
 	glutTimerFunc(200, timf, 0);

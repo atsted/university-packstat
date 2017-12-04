@@ -6,7 +6,8 @@
 
 #include "Packet.h"
 
-#define SIZE_ETHERNET 14
+#define SIZE_ETHERNET	14
+#define DUMP_FILE		"Captured/sun_tcpdump.log"
 
 
 class PcapAdapter
