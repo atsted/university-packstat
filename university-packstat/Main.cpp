@@ -6,7 +6,7 @@
 #include <glut.h>
 
 
-std::vector<int> v;
+std::vector<int> v, a;
 
 Data d;
 PcapAdapter pa;
@@ -25,11 +25,20 @@ void display() {
 	glBegin(GL_LINE_LOOP);
 	glColor3f(1.0, 1.0, 1.0);
 	glVertex2i(30, 30);
-	for (int i = 0; i < v.size(); ++i) {
+	for (size_t i = 0; i < v.size(); ++i) {
 		glVertex2i(30 + 5 * i, 30 + v[i]);
 		glVertex2i(30 + 5 * (i + 1), 30 + v[i]);
 	}
 	glVertex2i(30 + 5 * v.size(), 30);
+	glEnd();
+	glBegin(GL_LINE_LOOP);
+	glColor3f(0.0, 0.7, 0.3);
+	glVertex2i(30, 30);
+	for (size_t i = 0; i < a.size(); ++i) {
+		glVertex2i(30 + 5 * i, 30 + a[i]);
+		glVertex2i(30 + 5 * (i + 1), 30 + a[i]);
+	}
+	glVertex2i(30 + 5 * a.size(), 30);
 	glEnd();
 	glutSwapBuffers();
 }
@@ -37,14 +46,16 @@ void display() {
 DWORD WINAPI readPackages(LPVOID lpParam) {
 	u_long ip;
 	while ((ip = pa.getNextIP()) != NULL) {
-		d.add(ip);
+		d.insert(ip);
 		Sleep(10);
 	}
 	return 0;
 }
 
 void timf(int value) {
-	d.getAll(v);
+	v.clear();
+	a.clear();
+	d.countAverages(v, a);
 	glutPostRedisplay();
 	glutTimerFunc(10000, timf, 0);
 	d.clear();
