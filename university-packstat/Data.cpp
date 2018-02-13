@@ -7,12 +7,6 @@ Data::Data() {
 Data::~Data() {}
 
 void Data::insert(u_long ip) {
-	std::map<u_long, int>::iterator it = this->clients.find(ip);
-	if (it == this->clients.end()) {
-		this->clients.emplace(ip, 1);
-		return;
-	}
-	it->second++;
 	size_t i;
 	for (i = 0; i < this->barrier; i++) {
 		if (ip == this->statistics[i].ip) {
@@ -54,8 +48,7 @@ void Data::shiftBarrier() {
 
 void Data::countAverages(std::vector<int> &v, std::vector<int> &a) {
 	static int n = 0;
-	printf("%d\t\t%d\t\t%d\n", n, this->averages[0], this->statistics[0].count);
-	for (size_t i = 0; i < this->barrier; i++) {
+	for (size_t i = 0; i < MAX_CAPTURES_NUMBER; i++) {
 		this->averages[i] = (n * this->averages[i] + this->statistics[i].count) / (n + 1);
 	}
 	n++;
@@ -69,6 +62,24 @@ void Data::countAverages(std::vector<int> &v, std::vector<int> &a) {
 void Data::clear() {
 	std::fill(std::begin(this->statistics), std::end(this->statistics), Pair());
 	this->barrier = 0;
+}
+
+void Data::displayWarning() {
+	printf("Attack detected\n");
+}
+
+bool Data::checkAttack() {
+	double sum = 0;
+	for (int i = 0; i < MAX_CAPTURES_NUMBER; i++) {
+		int theoretical = this->averages[i];
+		int experienced = this->statistics[i].count;
+		if (theoretical != 0) {
+			double dn = (double)experienced - (double)theoretical;
+			sum += dn * dn / theoretical;
+		}
+	}
+	printf("%d\n", this->barrier);
+	return !(sum < this->x2[this->barrier]);
 }
 
 int Data::load() {

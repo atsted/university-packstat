@@ -8,6 +8,9 @@
 
 std::vector<int> v, a;
 
+int packsTotal = 0;
+int packsInCurrentFrame = 0;
+
 Data d;
 PcapAdapter pa;
 
@@ -44,21 +47,28 @@ void display() {
 }
 
 DWORD WINAPI readPackages(LPVOID lpParam) {
-	u_long ip;
+	in_addr *ip;
 	while ((ip = pa.getNextIP()) != NULL) {
-		d.insert(ip);
+		d.insert(ip->S_un.S_addr);
+		packsTotal++;
+		packsInCurrentFrame++;
 		Sleep(10);
 	}
 	return 0;
 }
 
 void timf(int value) {
+	static int i = 1;
 	v.clear();
 	a.clear();
 	d.countAverages(v, a);
+	if (d.checkAttack()) d.displayWarning();
+	printf("%5d\tTotal\t%20d\tCurrent\t%20d\n", i, packsTotal, packsInCurrentFrame);
 	glutPostRedisplay();
-	glutTimerFunc(10000, timf, 0);
 	d.clear();
+	i++;
+	packsInCurrentFrame = 0;
+	glutTimerFunc(10000, timf, 0);
 }
 
 int main(int argc, char * argv[]) {
