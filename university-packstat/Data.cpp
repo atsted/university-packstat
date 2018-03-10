@@ -1,39 +1,85 @@
 #include "Data.h"
 
-Data::Data() {}
+Data::Data() {
+	this->barrier = 0;
+}
 
 Data::~Data() {}
 
-void Data::add(u_long ip) {
-	std::map<u_long, int>::iterator it = this->clients.find(ip);
-	if (it == this->clients.end()) {
-		this->clients.emplace(ip, 1);
-		return;
+void Data::insert(u_long ip) {
+	size_t i;
+	for (i = 0; i < this->barrier; i++) {
+		if (ip == this->statistics[i].ip) {
+			this->statistics[i].count++;
+			this->bubble(i);
+			break;
+		}
 	}
-	it->second++;
+	if (i == this->barrier) {
+		this->append(ip);
+	}
 }
 
-int Data::get(u_long ip) {
-	std::map<u_long, int>::const_iterator it = this->clients.find(ip);
-	if (it == this->clients.end()) {
-		return -1;
-	}
-	return it->second;
+void Data::append(u_long ip) {
+	this->statistics[this->barrier].count = 1;
+	this->statistics[this->barrier].ip = ip;
+	this->shiftBarrier();
 }
 
-void Data::getAll(std::vector<int> &v) {
-	int i = 0;
-	v.resize(this->clients.size());
-	for (std::map<u_long, int>::const_iterator it = this->clients.begin(); it != this->clients.end(); ++it) {
-		v[i++] = it->second;
+void Data::bubble(size_t i) {
+	while ((i != 0) && (this->statistics[i - 1].count < this->statistics[i].count)) {
+		this->swap(i - 1, i);
+		i--;
 	}
-	std::sort(v.begin(), v.end(), [](const int &a, const int &b) {
-		return (b < a);
-	});
+}
+
+void Data::swap(size_t i, size_t j) {
+	int tmpCount = this->statistics[i].count;
+	u_long tmpIp = this->statistics[i].ip;
+	this->statistics[i].count = this->statistics[j].count;
+	this->statistics[i].ip = this->statistics[j].ip;
+	this->statistics[j].count = tmpCount;
+	this->statistics[j].ip = tmpIp;
+}
+
+void Data::shiftBarrier() {
+	this->barrier = (this->barrier < 499) ? this->barrier + 1 : 499;
+}
+
+void Data::countAverages(std::vector<int> &v, std::vector<int> &a) {
+	static int n = 0;
+	for (size_t i = 0; i < MAX_CAPTURES_NUMBER; i++) {
+		this->averages[i] = (n * this->averages[i] + this->statistics[i].count) / (n + 1);
+	}
+	n++;
+	a.assign(this->averages, this->averages + this->barrier);
+	v.resize(this->barrier);
+	for (size_t i = 0; i < this->barrier; i++) {
+		v[i] = this->statistics[i].count;
+	}
 }
 
 void Data::clear() {
-	this->clients.clear();
+	std::fill(std::begin(this->statistics), std::end(this->statistics), Pair());
+	this->barrier = 0;
+}
+
+void Data::displayWarning() {
+	printf("Attack detected\n");
+}
+
+bool Data::checkAttack() {
+	double sum = 0;
+	for (int i = 0; i < MAX_CAPTURES_NUMBER; i++) {
+		int theoretical = this->averages[i];
+		int experienced = this->statistics[i].count;
+		if (theoretical != 0) {
+			double dn = (double)experienced - (double)theoretical;
+			sum += dn * dn / theoretical;
+		}
+	}
+	printf("%d\n", this->barrier);
+	return !(sum < this->x2[this->barrier]);
 }
 
 int Data::load() {
